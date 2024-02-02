@@ -1,4 +1,5 @@
 import time
+import re
 
 from guesser import Guesser
 from collections import defaultdict
@@ -67,14 +68,17 @@ class PresidentGuesser(Guesser):
         self._lookup = defaultdict(dict)
             
     def __call__(self, question, n_guesses=1):
-        # Update this code so that we can have a different president than Joe
-        # Biden
-        candidates = ["Joseph R. Biden"]
+        varTime = question.replace("Who was president on ", "")
+        varTime = varTime.replace("?", "")
+        presTime = time.strptime(varTime, "%a %b %d %H:%M:%S %Y")
+        for Pres in kPRESIDENT_DATA["train"]:
+            if presTime.tm_year < Pres["stop"]:
+                return [{"guess": Pres["name"]}]
 
-        if len(candidates) == 0:
-            return [{"guess": ""}]
-        else:
-            return [{"guess": x} for x in candidates]
+        #if len(candidates) == 0:
+        #    return [{"guess": ""}]
+        #else:
+        #    return [{"guess": x} for x in candidates]
         
 if __name__ == "__main__":
     pg = PresidentGuesser()
