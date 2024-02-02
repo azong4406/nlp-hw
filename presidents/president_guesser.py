@@ -74,6 +74,8 @@ class PresidentGuesser(Guesser):
         for Pres in kPRESIDENT_DATA["train"]:
             if presTime.tm_year < Pres["stop"]:
                 return [{"guess": Pres["name"]}]
+        return [{"guess": "Joseph R. Biden"}]
+
 
         #if len(candidates) == 0:
         #    return [{"guess": ""}]
