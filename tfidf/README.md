@@ -163,6 +163,23 @@ inv_docfreq
 
 Return the inverse document frequency of a word.
 
+`__call__`
+-------------
+
+Before you start coding this, remember what this function did in the last
+homework: given a query, it needs to find the training item closest to the
+query.  To do that, you need to do three things: turn the query into a vector,
+compute the similarity of that vector with each row in the matrix, and return
+the metadata associated with that row.
+
+We've helped you out by structuring the code so that it should be easy for you
+to complete it.  `question_tfidf` is the vector after you embed it.  This code
+is already done for you (assuming you've completed `inv_docfreq` already).
+
+Then you'll need to go through the rows in `self._doc_vectors` and find the
+closest row.  Call whatever the closest is `best` and return the appropriate
+metadata.  This is implemented for you already.
+
 
 Running Your Code
 =================
@@ -294,11 +311,11 @@ leaderboard.
 
 The first step is to train your guesser:
 
-    jbg@MacBook-Pro-von-Jordan GPT3QA % python3 guesser.py --guesser_type=ToyTfidf --limit=10000 --questions=data/qanta.guesstrain.json.gz
+    jbg@MacBook-Pro-von-Jordan GPT3QA % python3 guesser.py --guesser_type=ToyTfidf --limit=10000 --questions=../data/qanta.guesstrain.json.gz
     Setting up logging
     INFO:root:Using device 'cpu' (cuda flag=False)
     INFO:root:Initializing guesser of type ToyTfidf
-    INFO:root:Loading questions from data/qanta.guesstrain.json.gz
+    INFO:root:Loading questions from ../data/qanta.guesstrain.json.gz
     INFO:root:Read 10000 questions
     100%|███████████████████████████████████████████████████████████████████████████████████████████████| 10000/10000 [00:00<00:00, 25450.41it/s]
     100%|███████████████████████████████████████████████████████████████████████████████████████████████| 6616/6616 [00:00<00:00, 1768498.84it/s]
@@ -314,7 +331,7 @@ Then see how it's doing on an evaluation set:
 
     jbg@MacBook-Pro-von-Jordan GPT3QA % python3 eval.py --evaluate=guesser --guesser_type='ToyTfidf' --questions=../data/qanta.guessdev.json.gz --limit=100 --load=True --num_guesses=1
     Setting up logging
-    INFO:root:Loading questions from data/qanta.guessdev.json.gz
+    INFO:root:Loading questions from ../data/qanta.guessdev.json.gz
     INFO:root:Read 100 questions
     INFO:root:Using device 'cpu' (cuda flag=False)
     INFO:root:Initializing guesser of type ToyTfidf
