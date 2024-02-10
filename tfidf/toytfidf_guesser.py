@@ -104,19 +104,21 @@ class ToyTfIdfGuesser(Guesser):
         """
         
         assert max_n_guesses == 1, "We only support top guess"
-        
-        question_tfidf = self.embed(question).reshape(1, -1)
 
-        best = 0
         for doc_index, document in enumerate(self._doc_vectors):
             for word_index in range(len(document)):
-                document[word_index] = document[word_index] * self.inv_docfreq(word_index)
+                document[word_index] *= self.inv_docfreq(word_index)
             self._doc_vectors[doc_index] = document
+
+        question_tfidf = self.embed(question).reshape(1, -1)
         dot_products = np.dot(question_tfidf, self._doc_vectors.T)
+        
         best = np.argmax(dot_products)
-        return [{"question": self.questions[best],
-                 "guess": self.answers[best],
-                 "confidence": dot_products[0][best]}]
+        return [{
+            "question": self.questions[best],
+            "guess": self.answers[best],
+            "confidence": dot_products[0][best]
+        }]
 
     def save(self):
         path = self.filename
