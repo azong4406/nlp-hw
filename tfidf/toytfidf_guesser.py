@@ -40,13 +40,14 @@ class ToyTfIdfGuesser(Guesser):
         self._max_vocab_size = max_vocab_size
         self._total_docs = 0
 
-        self._doc_vectors = None
+        self._doc_vectors = np.array([])
         self._vocab_final = False
         self._docs_final = False
         
         self._vocab = {}
         self._docs = None
-        self._labels = []
+        self._global_vocab = FreqDist([])
+        self._labels = {}
         self._unk_cutoff = unk_cutoff
 
         self._tokenizer = tokenize_function
@@ -55,6 +56,7 @@ class ToyTfIdfGuesser(Guesser):
         self.filename = filename
 
         # Add your code here!
+
         self._doc_counts = FreqDist()
 
     def train(self, training_data, answer_field='page', split_by_sentence=False):
@@ -105,14 +107,16 @@ class ToyTfIdfGuesser(Guesser):
         
         question_tfidf = self.embed(question).reshape(1, -1)
 
-        # This code is wrong, you need to fix it.  You'll want to use "argmax" and perhapse "reshape"
         best = 0
-        cosine = np.zeros(5)
-        
-        
+        for doc_index, document in enumerate(self._doc_vectors):
+            for word_index in range(len(document)):
+                document[word_index] = document[word_index] * self.inv_docfreq(word_index)
+            self._doc_vectors[doc_index] = document
+        dot_products = np.dot(question_tfidf, self._doc_vectors.T)
+        best = np.argmax(dot_products)
         return [{"question": self.questions[best],
                  "guess": self.answers[best],
-                 "confidence": cosine[best]}]
+                 "confidence": dot_products[0][best]}]
 
     def save(self):
         path = self.filename
@@ -166,6 +170,12 @@ class ToyTfIdfGuesser(Guesser):
             "Trying to add new words to finalized vocab"
 
         # Add your code here!
+        if word in self._labels:
+            self._labels[word] += 1
+        else:
+            self._labels.update({word: count})
+            
+
 
     def scan_document(self, text: str):
         """
@@ -178,12 +188,15 @@ class ToyTfIdfGuesser(Guesser):
         assert not self._docs_final, "scan_document can only be run with non-finalized doc counts"
 
         tokenized = list(self.tokenize(text))
+        self._global_vocab.update(tokenized)
         if len(tokenized) == 0:
             logging.warning("Empty doc: %30s, tokenize: %30s, vocab: %30s" % (text, str(tokenized), " ".join(self._vocab.keys())))
-
+        
+        document_words = np.zeros(self._vocab_size)
         for word in tokenized:
-            # You'll need to add code here!
-            None
+            document_words[word] += 1/len(tokenized)
+        self._doc_vectors = np.append(self._doc_vectors,document_words)
+        self._docs[document_words > 0] += 1
         self._total_docs += 1
         
     def embed(self, text):
@@ -235,7 +248,7 @@ class ToyTfIdfGuesser(Guesser):
         word -- The integer lookup of the word.
         """
 
-        return 0.0
+        return self._global_vocab.freq(word)
 
     def inv_docfreq(self, word: int) -> float:
         """Compute the inverse document frequency of a word.  Return 0.0 if
@@ -247,8 +260,8 @@ class ToyTfIdfGuesser(Guesser):
 
         """
         assert self._docs_final, "Documents must be finalized"
-        
-        return 0.0
+        return log10(self._total_docs / self._docs[int(word)])
+
 
     def vocab_lookup(self, word: str) -> int:
         """
@@ -280,13 +293,18 @@ class ToyTfIdfGuesser(Guesser):
 
         # Add code to generate the vocabulary that the vocab lookup
         # function can use!
-
+        i = 1
+        for word in self._labels:
+            if self._labels[word] >= self._unk_cutoff:
+                self._vocab[word] = i
+                i+=1     
         self._vocab_final = True
 
         # The following line of code lets things run to get an answer, but you need not leave it!
         self._vocab[kUNK] = 0
 
         self._vocab_size = len(self._vocab)
+        self._docs = np.zeros(self._vocab_size)
         assert kUNK in self._vocab
         if self._vocab_size == 1:
             logging.warning("Vocab size is very small, this suggests either you didn't implement vocabulary, the dataset is small, or your filters are too aggressive")
