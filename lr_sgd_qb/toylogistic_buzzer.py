@@ -146,12 +146,11 @@ class ToyLogisticBuzzer(Buzzer):
         step = self._step
         beta = self._beta
         
-
-
-
-
-
-
+        pi = sigmoid(np.sum(np.dot(train_example.x,beta)))
+        i = 0
+        for num in beta:
+            beta[i] = num + (step * (train_example.y - pi) * train_example.x[i])
+            i += 1
         return beta
 
     def finalize_lazy(self, iteration):
@@ -177,8 +176,8 @@ class ToyLogisticBuzzer(Buzzer):
         limit -- how many features to display
         """
 
-        top = [0]
-        bottom = []
+        top = np.argsort(self._beta)[limit:]
+        bottom = np.argsort(self._beta)[:limit]
 
         for idx in list(top) + list(bottom):
             logging.info("Feat %35s %3i: %+0.5f" %
