@@ -56,7 +56,7 @@ write any code for this, however.
 2. (Optional) Store necessary data in the constructor so you can do
 classification later.
 
-3. Modify the _sg update_ function to perform updates.
+3. Modify the _sg_update_ function to perform updates.
 
 4. Modify the _inspect_ function to return the most salient features
 
@@ -70,7 +70,7 @@ about what the model is doing, but no one metric is perfect.
 
 Extra credit:
 
-1.  Modify the _sg update_ function to perform [lazy regularized updates](https://lingpipe.files.wordpress.com/2008/04/lazysgdregression.pdf), which only update the weights of features when they appear in an example.
+1.  Modify the _sg_update_ function to perform [lazy regularized updates](https://lingpipe.files.wordpress.com/2008/04/lazysgdregression.pdf), which only update the weights of features when they appear in an example.
     - Show the effect in your analysis document 
     
 Caution: When implementing extra credit, make sure your implementation of the
@@ -89,9 +89,9 @@ problem.
 What to turn in
 -
 
-1. Submit your _lr_sgd.py_ file (include your name at the top of the source)
+1. Submit your _toylogistic_buzzer.py_ file (include your name at the top of the source)
 1. Submit your _analysis.pdf_ file
-    - no more than one page (NB: This is also for the extra credit.  To minimize effort for the grader, you'll need to put everything on a page.  Take this into account when selecting if/which extra credit to do...think of the page requirement like a regularizer).
+    - no more than one page (NB: This is also for the extra credit. To minimize effort for the grader, you'll need to put everything on a page. Take this into account when selecting if/which extra credit to do... think of the page requirement like a regularizer).
     - pictures are better than text
     - include your name at the top of the PDF
 
@@ -104,8 +104,8 @@ through in class.  Before running your code on read data, make sure it passes
 all of the unit tests.
 
 ```
-cs244-33-dhcp:logreg jbg$ python tests.py
-.[ 0.  0.  0.  0.  0.]
+$ python toylogistic_test.py
+[ 0.  0.  0.  0.  0.]
 [ 1.  4.  3.  1.  0.]
 F
 ======================================================================
@@ -127,7 +127,7 @@ Example
 
 This is an example of what your runs should look like:
 ```
-.venv/bin/python3 toylogistic_buzzer.py --train=data/small_guess.buzztrain.jsonl --test=data/small_guess.buzzdev.jsonl --vocab=data/small_guess.vocab --passes=1 --learning_rate=0.01 --regularization=0.1
+$ python toylogistic_buzzer.py --train=../data/small_guess.buzztrain.jsonl --test=../data/small_guess.buzzdev.jsonl --vocab=../data/small_guess.vocab --passes=1 --learning_rate=0.01 --regularization=0.1
 Loaded 16 items from vocab data/small_guess.vocab
 Read in 6619 train and 1628 test
 INFO:root:Creating regression over 16 features
