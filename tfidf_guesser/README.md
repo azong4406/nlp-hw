@@ -36,8 +36,8 @@ Analysis (5 points):
 
 1.  What answers get confused with each other most easily?  What kinds of
     mistakes does this guesser make?
-1.  How does this guesser compare to GPT?  (Remember that the cached guesser from the feature engineering homework came from GPT3.)
-1.  Compute recall as you increase the number of guesses.
+1.  How does this guesser compare to GPT?  (Remember that the cached guesser from the feature engineering homework came from GPT3, so you could either use your old code or adapt with multiple guessers here!)
+1.  Compute recall as you increase the number of guesses (i.e. `max_n_guesses`).
 
 Accuracy (10 points): How well you do on the recall leaderboard.
 
@@ -76,17 +76,22 @@ tests:
 Your numeric results might not exactly match the similarities here,
 but the ranking should still be consistent.
 
+You might notice the batch guess test failed with the current `batch_guess` function. You could either implement the function (though not required) or use the same function from its parent class.
+
 What to turn in
 -
+For the guesser submission:
+1. Submit your _tfidf_guesser.py_ file (so we could retrain your model!)
+2. Submit your _analysis.pdf_ file (no more than one page; pictures
+    are better than text)
 
-1.  Submit your _tfidf_guesser.py_ file
-2.  If you create new features (or reuse features from the feature engineering
-homework), also upload your _params.py_ and _features.py_ files.
-3. Submit the ``TfidfGuesser.answers.pkl``,
+For the extra credit submission:
+1. Submit your _tfidf_guesser.py_ file
+2. Submit the ``TfidfGuesser.answers.pkl``,
    ``TfidfGuesser.questions.pkl``, ``TfidfGuesser.tfidf.pkl`` and the
    ``TfidfGuesser.vectorizer.pkl`` files that encode your model. 
-4.  Submit your _analysis.pdf_ file (no more than one page; pictures
-    are better than text)
+3. For the extra credit buzzer, also upload your _params.py_ and _features.py_ files and your classifier pickles.
+    
 
 Extra Credit
 =
@@ -94,26 +99,25 @@ Extra Credit
 There will be two different places to submit your code on Gradescope:
 one that only tests the guesser, one that specifically tests the
 buzzer.  The guesser evaluation will retrain your model, the buzzer
-evaluation will use the the model directly.  
+evaluation will use the the uploading model directly.  
 1. Optimize the retrieval mechanism by tuning parameters, weighting, and/or using
-   bigrams.
+   different tokenizers/vocabularies.
 2. Do well in the overall leaderboard (while overall buzz ratio and accuracy is important, more
    important is using features that take advantage of tfidf guesser features or
-   multiple guessers.
+   multiple guessers.)
 3. Add additional tf-idf guessers (e.g., from the provided Wikipedia pages).  You can create an additional
     guesser if you want to keep it separate from the tfidf_guesser.  If you do
     that, make sure to upload that file too.
-4. Finally, you can get extra credit for by submitting your system on Dynabench (assuming
-   we can get it up in time ... watch Piazza for announcements).
 5. You can and should use multiple guessers (e.g., it's allowed to use
    the GPT and tf-idf guesser).  You can also create a new guesser.
 
+What makes this more fun than the last feature engineering assignment is that you have full control over the buzzer now, and you get to change what it's producing.  So now you can do more than create features *given* the guesses, you can now fix the guesser's problems as well!
 
 Example
 -
 
 Let's first test out the train function; you must run this before the eval
-function, because this establishes your tf-idf index.
+function, because this establishes your tf-idf index. (You might want to run `mkdir -p models` first!)
 
     python3 guesser.py --guesser_type=Tfidf \
     --question_source=gzjson \
@@ -655,7 +659,7 @@ Remember that if you want to inspect what the features look like, you
 can always use the ``features.py`` script, which generates the
 training data you had for the logistic regression homework:
 
-    python3 features.py --guesser_type=Tfidf --limit=100  --question_source=gzjson --TfidfGuesser_filename=models/TfidfGuesser  --questions=../data/qanta.buzztrain.json.gz --buzzer_guessers=Tfidf --json_guess_output=data/temp
+    python3 features.py --guesser_type=Tfidf --limit=100  --question_source=gzjson --TfidfGuesser_filename=models/TfidfGuesser  --questions=../data/qanta.buzztrain.json.gz --buzzer_guessers=Tfidf --json_guess_output=temp.out
 
 If you look at the outputs, you can see how multiple guesses might be
 useful.  The ``consensus`` features counts up all the times that a
@@ -671,7 +675,7 @@ both guessers with the Gpr guesser as the primary guesser, we can now
 see how this can help us.  So we generate the features (use a similar
 command line for this to be your buzzer).
 
-    python3 features.py --limit=100  --question_source=gzjson --TfidfGuesser_filename=models/TfidfGuesser  --questions=../data/qanta.buzztrain.json.gz --buzzer_guessers Tfidf Gpr --primary_guesser Gpr --json_guess_output=data/temp
+    python3 features.py --limit=100  --question_source=gzjson --TfidfGuesser_filename=models/TfidfGuesser  --questions=../data/qanta.buzztrain.json.gz --buzzer_guessers Tfidf Gpr --primary_guesser Gpr --json_guess_output=temp.out
 
 Now we can see for this question: 
 
@@ -689,9 +693,9 @@ more matches, so the consensus count is going up.  This is a great
 feature that can help the `Gpr_confidence` actually going down.  
 
 Speaking of, you might want to play around how that confidence is
-computed as well.  Take a look at the cache object:
+computed as well.  Take a look at the cache object (use `buzzdev` below as an example):
 
-    zless ../models/gpt_cache.tar.gz
+    zless ../models/buzzdev_gpr_cache.tar.gz
       "After this character relates a story about how he didn't know the proper way to use a wheelbarrow, he": {
         "guess": "William Carlos Williams",
         "confidence": [
@@ -834,4 +838,4 @@ Hints
     is applied to the words, what data are included, or looking at
     n-grams.  Also don't forget
     about the wiki pages:
-    https://drive.google.com/file/d/1-AhjvqsoZ01gz7EMt5VmlCnVpsE96A5n/view?usp=share_link 
+    https://drive.google.com/file/d/1-AhjvqsoZ01gz7EMt5VmlCnVpsE96A5n/view?usp=share_link. The file is under the `data` folder on gradescope.
